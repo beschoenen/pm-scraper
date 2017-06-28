@@ -1,3 +1,5 @@
+"use strict"
+
 let helpers = require('./helpers');
 let md5 = require('md5');
 let fs = require('fs');
