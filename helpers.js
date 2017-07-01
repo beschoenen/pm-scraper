@@ -1,16 +1,16 @@
-"use strict"
+"use strict";
 
 let http = require('http');
 let fs = require('fs');
 let cheerio = require('cheerio');
 let Transmission = require('transmission');
 
-const regex = /^\[PM]Pocket_Monsters_([^0-9]+)_([0-9]+)_([^\[]+)/;
+const regex = /^\[PM]Pocket_Monsters_(.+)_([0-9]{3})_([^\[]+)/;
 
 ///////////
-// Scraping
+// Download
 
-function get(url) {
+function download(url) {
   let content = "";
 
   return new Promise((resolve, reject) => {
@@ -22,8 +22,15 @@ function get(url) {
   });
 }
 
+///////////
+// Settings
+
 function getSettings() {
   return new Promise(resolve => {
+    if (!fs.existsSync('settings.json')) {
+      throw 'Please create a settings file first.';
+    }
+
     fs.readFile('settings.json', 'utf8', (error, data) => {
       if (error) throw error;
 
@@ -35,24 +42,21 @@ function getSettings() {
 ////////
 // Cache
 
-function createCacheIfNotExists() {
-  if (!fs.existsSync('./cache.json')) {
-    fs.closeSync(fs.openSync('./cache.json', 'w'));
-    writeToCache('{}');
-  }
-}
-
-function getCache() {
+function readCache() {
   return new Promise(resolve => {
+    if (!fs.existsSync('./cache.json')) {
+      return resolve({});
+    }
+
     fs.readFile('cache.json', 'utf8', (error, data) => {
       if (error) throw error;
 
-      resolve(JSON.parse(data));
+      resolve(JSON.parse(data) || {});
     });
   });
 }
 
-function writeToCache(text) {
+function writeCache(text) {
   fs.writeFileSync('./cache.json', text);
 }
 
@@ -79,26 +83,19 @@ function getSeason(season) {
 function addToTransmission(items) {
   return new Promise(resolve => {
     getSettings().then(settings => {
-      const transmission = new Transmission({
-        host: settings.transmission.host,
-        port: settings.transmission.port,
-        username: settings.transmission.username,
-        password: settings.transmission.password,
-      });
+      const transmission = new Transmission(settings.transmission);
 
-      for (let item in items) {
-        if (!items.hasOwnProperty(item)) continue;
+      items.forEach(item => {
+        if (!decodeURIComponent(item).match(regex)) return;
 
-        transmission.addUrl(`http://pocketmonsters.edwardk.info/${items[item].link}`, {
-          'download-dir': settings.download_folder
+        transmission.addUrl(`http://pocketmonsters.edwardk.info/${item}`, {
+          'download-dir': settings.downloadFolder
         }, (error, data) => {
-          if (error) {
-            return console.log(error);
-          }
+          if (error) throw error;
 
           renameTorrent(transmission, data)
         });
-      }
+      });
 
       resolve();
     });
@@ -109,18 +106,20 @@ function addToTransmission(items) {
 function renameTorrent(transmission, torrent) {
   const results = torrent.name.match(regex);
 
-  let season = getSeason(results[1]);
-  let name = `[PM] Pokemon S${season}E${pad(results[2], 2)} [720p].mkv`;
+  const season = getSeason(results[1]);
+  const name = `[PM] Pokemon S${season}E${pad(results[2], 2)} [720p].mkv`;
 
   transmission.rename(torrent.id, torrent.name, name, () => console.log(`Added ${name}`));
 }
 
 module.exports = {
-  get: get,
-  pad: pad,
-  createCacheIfNotExists: createCacheIfNotExists,
-  writeToCache: writeToCache,
-  getCache: getCache,
-  addToTransmission: addToTransmission,
-  getSeason: getSeason
+  download: download,
+  cache: {
+    read: readCache,
+    write: writeCache
+  },
+  transmission: {
+    add: addToTransmission,
+    rename: renameTorrent
+  }
 };

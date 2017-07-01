@@ -1,42 +1,38 @@
-"use strict"
+"use strict";
 
 let helpers = require('./helpers');
 let md5 = require('md5');
 let fs = require('fs');
 
+/////////
 // Search
 
-helpers.get('http://pocketmonsters.edwardk.info').then($ => {
+helpers.download('http://pocketmonsters.edwardk.info').then($ => {
   let items = {};
 
   $('a#NewTorrents ~ table.main').find('tr a').each((index, item) => {
-    const object = {
-      text: decodeURI($(item).text()),
-      link: decodeURI($(item).attr('href').toString())
-    };
+    const link = $(item).attr('href').toString();
 
-    items[md5(object.text)] = object;
+    items[md5(link)] = link;
   });
 
   checkNewItems(items);
 });
 
 function checkNewItems(items) {
-  helpers.createCacheIfNotExists();
+  const newItems = {};
 
-  let newItems = {};
-
-  helpers.getCache().then(json => {
+  helpers.cache.read().then(cache => {
     for (let item in items) {
       if (!items.hasOwnProperty(item)) continue;
 
-      if (!(item in json)) {
+      if (!(item in cache)) {
         newItems[item] = items[item];
       }
     }
 
-    helpers.addToTransmission(newItems).then(() => {
-      helpers.writeToCache(JSON.stringify(items));
+    helpers.transmission.add(newItems).then(() => {
+      helpers.cache.write(JSON.stringify(items));
     });
   });
 }
