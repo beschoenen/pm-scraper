@@ -85,8 +85,11 @@ function addToTransmission(items) {
     getSettings().then(settings => {
       const transmission = new Transmission(settings.transmission);
 
-      for (let item in items) {
-        if (!items.hasOwnProperty(item)) continue;
+      for (let key in items) {
+        if (!items.hasOwnProperty(key)) continue;
+
+        let item = items[key];
+
         if (!decodeURIComponent(item).match(regex)) continue;
 
         transmission.addUrl(`http://pocketmonsters.edwardk.info/${item}`, {
