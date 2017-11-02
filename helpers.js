@@ -26,12 +26,12 @@ function download(url) {
 // Settings
 
 function getSettings() {
-  return new Promise(resolve => {
-    if (!fs.existsSync('settings.json')) {
-      throw 'Please create a settings file first.';
+  return new Promise((resolve, reject) => {
+    if (!fs.existsSync(`${__dirname}/settings.json`)) {
+      return reject('Please create a settings file first.');
     }
 
-    fs.readFile('settings.json', 'utf8', (error, data) => {
+    fs.readFile(`${__dirname}/settings.json`, 'utf8', (error, data) => {
       if (error) throw error;
 
       resolve(JSON.parse(data));
@@ -44,11 +44,11 @@ function getSettings() {
 
 function readCache() {
   return new Promise(resolve => {
-    if (!fs.existsSync('./cache.json')) {
+    if (!fs.existsSync(`${__dirname}/cache.json`)) {
       return resolve({});
     }
 
-    fs.readFile('cache.json', 'utf8', (error, data) => {
+    fs.readFile(`${__dirname}/cache.json`, 'utf8', (error, data) => {
       if (error) throw error;
 
       resolve(JSON.parse(data) || {});
@@ -57,7 +57,7 @@ function readCache() {
 }
 
 function writeCache(text) {
-  fs.writeFileSync('./cache.json', text);
+  fs.writeFileSync(`${__dirname}/cache.json`, text);
 }
 
 //////////
@@ -81,27 +81,27 @@ function getSeason(season) {
 // Transmission
 
 function addToTransmission(items) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     getSettings().then(settings => {
       const transmission = new Transmission(settings.transmission);
 
-      items.forEach(item => {
-        if (!decodeURIComponent(item).match(regex)) return;
+      for (let item in items) {
+        if (!items.hasOwnProperty(item)) continue;
+        if (!decodeURIComponent(item).match(regex)) continue;
 
         transmission.addUrl(`http://pocketmonsters.edwardk.info/${item}`, {
           'download-dir': settings.downloadFolder
         }, (error, data) => {
-          if (error) throw error;
+          if (error) return reject(error);
 
           renameTorrent(transmission, data)
         });
-      });
+      }
 
       resolve();
-    });
+    }).catch(console.error);
   });
 }
-
 
 function renameTorrent(transmission, torrent) {
   const results = torrent.name.match(regex);

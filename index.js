@@ -30,7 +30,7 @@ function checkNewItems(items) {
         newItems[item] = items[item];
       }
     }
-
+  }).then(() => {
     helpers.transmission.add(newItems).then(() => {
       helpers.cache.write(JSON.stringify(items));
     });
