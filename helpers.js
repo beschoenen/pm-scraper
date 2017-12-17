@@ -109,6 +109,8 @@ function addToTransmission(items) {
 function renameTorrent(transmission, torrent) {
   const results = torrent.name.match(regex);
 
+  if (results == null) return;
+
   const season = getSeason(results[1]);
   const name = `[PM] Pokemon S${season}E${pad(results[2], 2)} [720p].mkv`;
 
