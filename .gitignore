@@ -3,3 +3,5 @@ node_modules
 timestamp
 settings.json
 package-lock.json
+@eaDir
+.DS_Store
