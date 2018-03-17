@@ -1,38 +1,18 @@
 "use strict";
 
-let helpers = require('./helpers');
-let md5 = require('md5');
-let fs = require('fs');
+const helpers = require('./helpers');
+const { si } = require('nyaapi');
 
-/////////
-// Search
+si.search({ term: "Pocket Monsters", n: 5, category: '1_2' }).catch(console.error).then(data => {
+  let items = [];
 
-helpers.download('http://pocketmonsters.edwardk.info').then($ => {
-  let items = {};
+  data.forEach(item => {
+    let result = helpers.isValidItem(item);
 
-  $('a#NewTorrents ~ table.main').find('tr a').each((index, item) => {
-    const link = $(item).attr('href').toString();
+    if (result === false) return;
 
-    items[md5(link)] = link;
+    items.push(result);
   });
 
-  checkNewItems(items);
+  helpers.addToTransmission(items).then(helpers.writeTimestamp);
 });
-
-function checkNewItems(items) {
-  const newItems = {};
-
-  helpers.cache.read().then(cache => {
-    for (let item in items) {
-      if (!items.hasOwnProperty(item)) continue;
-
-      if (!(item in cache)) {
-        newItems[item] = items[item];
-      }
-    }
-  }).then(() => {
-    helpers.transmission.add(newItems).then(() => {
-      helpers.cache.write(JSON.stringify(items));
-    });
-  });
-}

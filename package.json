@@ -4,8 +4,7 @@
   "author": "Kevin Richter<me@kevinrichter.nl>",
   "license": "MIT",
   "dependencies": {
-    "cheerio": "^0.22.0",
-    "md5": "^2.2.1",
+    "nyaapi": "^2.0.5",
     "transmission": "^0.4.9"
   }
 }

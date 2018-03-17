@@ -1,4 +1,5 @@
 .idea
 node_modules
-cache.json
+timestamp
 settings.json
+package-lock.json

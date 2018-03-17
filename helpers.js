@@ -1,74 +1,49 @@
 "use strict";
 
-let http = require('http');
 let fs = require('fs');
-let cheerio = require('cheerio');
 let Transmission = require('transmission');
 
-const regex = /^\[PM]Pocket_Monsters_(.+)_([0-9]{3})_([^\[]+)/;
-
-///////////
-// Download
-
-function download(url) {
-  let content = "";
-
-  return new Promise((resolve, reject) => {
-    http.get(url, response => {
-      response.on('data', chunk => content += chunk);
-      response.on('end', () => resolve(cheerio.load(content)));
-      response.on('error', reject);
-    })
-  });
-}
+const regexes = {
+  "PM": /^\[PM]Pocket_Monsters_(.{2,})_([0-9]{2,})_([^\[]+)\[.+]\[[0-9A-F]{8}]\..{3}$/,
+  "Some-Stuffs": /^\[Some-Stuffs]_Pocket_Monsters_(.+)_([0-9]+)_(\[v([0-9])])?\[[0-9A-F]{8}]\..{3}$/,
+};
 
 ///////////
 // Settings
 
-function getSettings() {
-  return new Promise((resolve, reject) => {
-    if (!fs.existsSync(`${__dirname}/settings.json`)) {
-      return reject('Please create a settings file first.');
-    }
+function getSettings () {
+  if (!fs.existsSync(`${__dirname}/settings.json`)) {
+    console.error('Please create a settings file first.');
+    process.exit(1);
+  }
 
-    fs.readFile(`${__dirname}/settings.json`, 'utf8', (error, data) => {
-      if (error) throw error;
-
-      resolve(JSON.parse(data));
-    });
-  });
+  return JSON.parse(fs.readFileSync(`${__dirname}/settings.json`, 'utf8'));
 }
 
-////////
-// Cache
+////////////
+// Timestamp
 
-function readCache() {
-  return new Promise(resolve => {
-    if (!fs.existsSync(`${__dirname}/cache.json`)) {
-      return resolve({});
-    }
-
-    fs.readFile(`${__dirname}/cache.json`, 'utf8', (error, data) => {
-      if (error) throw error;
-
-      resolve(JSON.parse(data) || {});
-    });
-  });
+function writeTimestamp (date) {
+  fs.writeFileSync(`${__dirname}/timestamp`, date || Math.round((new Date()).getTime() / 1000));
 }
 
-function writeCache(text) {
-  fs.writeFileSync(`${__dirname}/cache.json`, text);
+function readTimestamp () {
+  if (!fs.existsSync(`${__dirname}/timestamp`)) {
+    return Math.round((new Date()).getTime() / 1000);
+  }
+
+  return parseInt(fs.readFileSync(`${__dirname}/timestamp`));
 }
 
 //////////
 // Helpers
 
-function pad(str, max) {
+function pad (str, max) {
   str = str.toString();
   return str.length < max ? pad("0" + str, max) : str;
 }
 
-function getSeason(season) {
+function getSeason (season) {
   switch (season) {
     case 'Sun_&_Moon':
       return 18;
@@ -77,54 +52,61 @@ function getSeason(season) {
   }
 }
 
+/////////////////
+// Validity check
+
+function isValidItem (item) {
+  let lastRun = readTimestamp();
+
+  if (parseInt(item.fileSize) < 100) return false;
+
+  // Check if older than last run
+  if (parseInt(item.timestamp) < lastRun) return false;
+
+  for (let group in regexes) {
+    let result = item.name.match(regexes[group]);
+
+    if (result != null) {
+      item.newName = `[${group}] Pokemon S${getSeason(result[1])}E${pad(result[2], 3)}.mkv`;
+
+      return item;
+    }
+  }
+
+  return false;
+}
+
 ///////////////
 // Transmission
 
-function addToTransmission(items) {
+function addToTransmission (items) {
   return new Promise((resolve, reject) => {
-    getSettings().then(settings => {
-      const transmission = new Transmission(settings.transmission);
+    if (items.length < 1) return resolve();
 
-      for (let key in items) {
-        if (!items.hasOwnProperty(key)) continue;
+    let settings = getSettings();
 
-        let item = items[key];
+    const transmission = new Transmission(settings.transmission);
 
-        if (!decodeURIComponent(item).match(regex)) continue;
+    for (let key in items) {
+      if (!items.hasOwnProperty(key)) continue;
 
-        transmission.addUrl(`http://pocketmonsters.edwardk.info/${item}`, {
-          'download-dir': settings.downloadFolder
-        }, (error, data) => {
-          if (error) return reject(error);
+      let item = items[key];
 
-          renameTorrent(transmission, data)
+      transmission.addUrl(item.links.file, { 'download-dir': settings.downloadFolder }, (error, data) => {
+        if (error) return reject(error);
+
+        transmission.rename(data.id, data.name, item.newName, () => {
+          console.log(`Added ${item.newName}`);
         });
-      }
+      });
+    }
 
-      resolve();
-    }).catch(console.error);
+    resolve();
   });
 }
 
-function renameTorrent(transmission, torrent) {
-  const results = torrent.name.match(regex);
-
-  if (results == null) return;
-
-  const season = getSeason(results[1]);
-  const name = `[PM] Pokemon S${season}E${pad(results[2], 2)} [720p].mkv`;
-
-  transmission.rename(torrent.id, torrent.name, name, () => console.log(`Added ${name}`));
-}
-
 module.exports = {
-  download: download,
-  cache: {
-    read: readCache,
-    write: writeCache
-  },
-  transmission: {
-    add: addToTransmission,
-    rename: renameTorrent
-  }
+  isValidItem: isValidItem,
+  writeTimestamp: writeTimestamp,
+  addToTransmission: addToTransmission
 };
