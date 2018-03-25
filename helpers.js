@@ -67,7 +67,12 @@ function isValidItem (item) {
     let result = item.name.match(regexes[group]);
 
     if (result != null) {
-      item.newName = `[${group}] Pokemon S${getSeason(result[1])}E${pad(result[2], 3)}.mkv`;
+      const season = getSeason(result[1]);
+      const episode = pad(result[2], 3);
+
+      if (season < 1) continue;
+
+      item.newName = `[${group}] Pokemon S${season}E${episode}.mkv`;
 
       return item;
     }
