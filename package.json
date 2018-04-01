@@ -4,6 +4,7 @@
   "author": "Kevin Richter<me@kevinrichter.nl>",
   "license": "MIT",
   "dependencies": {
+    "cron": "^1.3.0",
     "nyaapi": "^2.0.5",
     "transmission": "^0.4.9"
   }
