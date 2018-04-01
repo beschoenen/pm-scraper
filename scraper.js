@@ -2,7 +2,7 @@ const helpers = require('./helpers');
 const { si } = require('nyaapi');
 
 module.exports = () => {
-  console.log(`Starting search at ${+new Date()}`);
+  console.log(`Starting search`);
 
   si.search({ term: "Pocket Monsters", n: 5, category: '1_2' }).catch(console.error).then(data => {
     console.log(`Found ${data.length} items`);
