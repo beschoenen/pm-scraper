@@ -3,6 +3,9 @@
   "main": "index.js",
   "author": "Kevin Richter<me@kevinrichter.nl>",
   "license": "MIT",
+  "scripts": {
+    "schedule": "node schedule.js"
+  },
   "dependencies": {
     "cron": "^1.3.0",
     "nyaapi": "^2.0.5",
