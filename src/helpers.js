@@ -11,10 +11,22 @@ const regexes = {
 ///////////
 // Settings
 
+function getEnvSettings () {
+  return {
+    transmission: {
+      "host": process.env.TRANSMISSION_HOST,
+      "port": parseInt(process.env.TRANSMISSION_PORT),
+      "username": process.env.TRANSMISSION_USERNAME,
+      "password": process.env.TRANSMISSION_PASSWORD
+    },
+    "download_folder": process.env.DOWNLOAD_FOLDER
+  }
+}
+
 function getSettings () {
   if (!fs.existsSync(`${__dirname}/settings.json`)) {
-    console.error('Please create a settings file first.');
-    process.exit(1);
+    console.log("Getting settings from ENV");
+    return getEnvSettings();
   }
 
   return JSON.parse(fs.readFileSync(`${__dirname}/settings.json`, 'utf8'));
@@ -24,7 +36,10 @@ function getSettings () {
 // Timestamp
 
 function writeTimestamp (date) {
-  fs.writeFileSync(`${__dirname}/timestamp`, date || Math.round((new Date()).getTime() / 1000));
+  date = date || Math.round((new Date()).getTime() / 1000);
+
+  console.log(`Writing timestamp: ${date}`);
+  fs.writeFileSync(`${__dirname}/timestamp`, date);
 }
 
 function readTimestamp () {
@@ -98,10 +113,11 @@ function addToTransmission (items) {
       let item = items[key];
 
       transmission.addUrl(item.links.file, { 'download-dir': settings.downloadFolder }, (error, data) => {
+        console.log(`Added ${item.name}`);
         if (error) return reject(error);
 
         transmission.rename(data.id, data.name, item.newName, () => {
-          console.log(`Added ${item.newName}`);
+          console.log(`Renamed to ${item.newName}`);
         });
       });
     }
