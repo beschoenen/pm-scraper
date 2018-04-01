@@ -7,5 +7,6 @@ new cron.CronJob({
   cronTime: schedule,
   onTick: scraper,
   start: true,
+  runOnInit: true,
   timeZone: 'Europe/Amsterdam'
-}).start();
+});
