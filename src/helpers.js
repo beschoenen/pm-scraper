@@ -14,12 +14,12 @@ const regexes = {
 function getEnvSettings () {
   return {
     transmission: {
-      "host": process.env.TRANSMISSION_HOST,
-      "port": parseInt(process.env.TRANSMISSION_PORT),
-      "username": process.env.TRANSMISSION_USERNAME,
-      "password": process.env.TRANSMISSION_PASSWORD
+      host: process.env.TRANSMISSION_HOST,
+      port: parseInt(process.env.TRANSMISSION_PORT),
+      username: process.env.TRANSMISSION_USERNAME,
+      password: process.env.TRANSMISSION_PASSWORD
     },
-    "downloadFolder": process.env.DOWNLOAD_FOLDER
+    downloadFolder: process.env.DOWNLOAD_FOLDER
   }
 }
 
@@ -35,8 +35,12 @@ function getSettings () {
 ////////////
 // Timestamp
 
+function getTimestamp () {
+  return Math.round((new Date()).getTime() / 1000);
+}
+
 function writeTimestamp (date) {
-  date = date || Math.round((new Date()).getTime() / 1000);
+  date = date || getTimestamp();
 
   console.log(`Writing timestamp: ${date}`);
   fs.writeFileSync(`${__dirname}/../config/timestamp`, date);
@@ -44,7 +48,7 @@ function writeTimestamp (date) {
 
 function readTimestamp () {
   if (!fs.existsSync(`${__dirname}/../config/timestamp`)) {
-    return Math.round((new Date()).getTime() / 1000);
+    return getTimestamp();
   }
 
   return parseInt(fs.readFileSync(`${__dirname}/../config/timestamp`));
