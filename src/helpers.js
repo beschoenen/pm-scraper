@@ -24,12 +24,12 @@ function getEnvSettings () {
 }
 
 function getSettings () {
-  if (!fs.existsSync(`${__dirname}/settings.json`)) {
+  if (!fs.existsSync(`${__dirname}/../config/settings.json`)) {
     console.log("Getting settings from ENV");
     return getEnvSettings();
   }
 
-  return JSON.parse(fs.readFileSync(`${__dirname}/settings.json`, 'utf8'));
+  return JSON.parse(fs.readFileSync(`${__dirname}/../config/settings.json`, 'utf8'));
 }
 
 ////////////
@@ -39,15 +39,15 @@ function writeTimestamp (date) {
   date = date || Math.round((new Date()).getTime() / 1000);
 
   console.log(`Writing timestamp: ${date}`);
-  fs.writeFileSync(`${__dirname}/timestamp`, date);
+  fs.writeFileSync(`${__dirname}/../config/timestamp`, date);
 }
 
 function readTimestamp () {
-  if (!fs.existsSync(`${__dirname}/timestamp`)) {
+  if (!fs.existsSync(`${__dirname}/../config/timestamp`)) {
     return Math.round((new Date()).getTime() / 1000);
   }
 
-  return parseInt(fs.readFileSync(`${__dirname}/timestamp`));
+  return parseInt(fs.readFileSync(`${__dirname}/../config/timestamp`));
 }
 
 //////////
@@ -112,11 +112,14 @@ function addToTransmission (items) {
 
       let item = items[key];
 
-      transmission.addUrl(item.links.file, { 'download-dir': settings.downloadFolder }, (error, data) => {
-        console.log(`Added ${item.name}`);
+      transmission.addUrl(item.links.file, { 'download-dir': settings.downloadFolder }, error => {
         if (error) return reject(error);
 
-        transmission.rename(data.id, data.name, item.newName, () => {
+        console.log(`Added ${item.name}`);
+
+        transmission.rename(data.id, data.name, item.newName, error => {
+          if (error) return reject(error);
+
           console.log(`Renamed to ${item.newName}`);
         });
       });

@@ -5,3 +5,4 @@ settings.json
 package-lock.json
 @eaDir
 .DS_Store
+config

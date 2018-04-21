@@ -19,6 +19,8 @@ module.exports = () => {
 
     console.log(`${items.length} of which are valid`);
 
-    helpers.addToTransmission(items).then(helpers.writeTimestamp);
+    helpers.addToTransmission(items).then(helpers.writeTimestamp).catch(error => {
+      console.error(error.Error);
+    });
   });
 };
