@@ -19,7 +19,7 @@ function getEnvSettings () {
       "username": process.env.TRANSMISSION_USERNAME,
       "password": process.env.TRANSMISSION_PASSWORD
     },
-    "download_folder": process.env.DOWNLOAD_FOLDER
+    "downloadFolder": process.env.DOWNLOAD_FOLDER
   }
 }
 
