@@ -116,7 +116,7 @@ function addToTransmission (items) {
 
       let item = items[key];
 
-      transmission.addUrl(item.links.file, { 'download-dir': settings.downloadFolder }, error => {
+      transmission.addUrl(item.links.file, { 'download-dir': settings.downloadFolder }, (error, data) => {
         if (error) return reject(error);
 
         console.log(`Added ${item.name}`);
