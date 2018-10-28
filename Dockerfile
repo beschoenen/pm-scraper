@@ -8,14 +8,7 @@ COPY . .
 
 RUN npm ci --no-color
 
-RUN ./node_modules/.bin/tsc
-
-RUN rm index.ts
-RUN rm -rf src
-
-COPY ./dist .
-
-RUN rm -rf dist
+RUN npm run build
 
 ENV SCHEDULE "0 0 */2 * * *"
 ENV DOWNLOAD_FOLDER ""
@@ -24,4 +17,4 @@ ENV TRANSMISSION_PORT "9091"
 ENV TRANSMISSION_USERNAME ""
 ENV TRANSMISSION_PASSWORD ""
 
-CMD ["node", "index.js", "--scheduled"]
+CMD ["node", "dist", "--scheduled"]
