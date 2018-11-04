@@ -5,7 +5,7 @@ import { isValidItem, newName } from "./parser";
 import { writeTimestamp } from "./timestamp";
 import Transmission from "./transmission";
 
-export default async function() {
+export default async function(): Promise<any> {
   console.log("Starting search");
 
   try {
@@ -37,7 +37,7 @@ function filterItems(items: NyaaItem[]): LocalItem[] {
   return newObjects.filter((item) => item.newName);
 }
 
-async function addToTransmission(items: LocalItem[]) {
+async function addToTransmission(items: LocalItem[]): Promise<any> {
   const transmission = new Transmission();
 
   for (const item of items) {

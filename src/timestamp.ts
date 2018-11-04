@@ -16,7 +16,7 @@ export function readTimestamp(): number {
   return parseInt(content, 10);
 }
 
-function getTimestampPath() {
+function getTimestampPath(): string {
   return `${__dirname}/../timestamp`;
 }
 
