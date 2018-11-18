@@ -4,7 +4,7 @@ let client: any;
 
 export default class Transmission {
 
-  public static _getTransmissionSettings() {
+  private static get settings(): object {
     return {
       host: process.env.TRANSMISSION_HOST || "127.0.0.1",
       port: parseInt(process.env.TRANSMISSION_PORT || "9091", 10),
@@ -18,7 +18,7 @@ export default class Transmission {
       return client;
     }
 
-    client = new TransmissionClient(Transmission._getTransmissionSettings());
+    client = new TransmissionClient(Transmission.settings);
   }
 
   public addTorrent(url: string): Promise<number> {

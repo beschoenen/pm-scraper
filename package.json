@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "tsc && node dist",
-    "scheduled": "npm run start -- --scheduled",
+    "scheduled": "npm run start -- --scheduled --in-memory",
     "build": "tsc"
   },
   "dependencies": {

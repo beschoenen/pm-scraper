@@ -1,12 +1,26 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
+const glob = global as Glob;
+
 export function writeTimestamp(date?: number): void {
   date = date || getTimestamp();
 
-  writeFileSync(getTimestampPath(), date);
+  if (process.argv.indexOf("--in-memory") < 0) {
+    writeFileSync(getTimestampPath(), date);
+  } else {
+    glob.timestamp = date;
+  }
 }
 
 export function readTimestamp(): number {
+  if (process.argv.indexOf("--in-memory") < 0) {
+    return getFileTimestamp();
+  } else {
+    return glob.timestamp || getTimestamp();
+  }
+}
+
+function getFileTimestamp(): number {
   if (!existsSync(getTimestampPath())) {
     return getTimestamp();
   }
