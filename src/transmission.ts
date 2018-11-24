@@ -14,11 +14,9 @@ export default class Transmission {
   }
 
   constructor() {
-    if (client) {
-      return client;
+    if (!client) {
+      client = new TransmissionClient(Transmission.settings);
     }
-
-    client = new TransmissionClient(Transmission.settings);
   }
 
   public addTorrent(url: string): Promise<number> {
