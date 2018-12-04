@@ -5,7 +5,7 @@ import { readTimestamp } from "./timestamp";
 const regexes: GroupRegex[] = [
   {
     name: "PM",
-    regex: /^\[PM]Pocket_Monsters_(.{2,})_([0-9]{2,})_([^\[]+)\[.+]\[[0-9A-F]{8}]\..{3}$/,
+    regex: /^\[PM]Pocket_Monsters_(.{2,})_([0-9]{2,})_([^\[]+)\[H265.*_720P]\[[0-9A-F]{8}]\..{3}$/,
   },
   {
     name: "Some-Stuffs",
