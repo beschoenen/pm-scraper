@@ -1,9 +1,9 @@
 import { CronJob } from "cron";
 import scraper from "./scraper";
 
-export default function(): CronJob {
+export default function (): CronJob {
   const schedule = process.env.SCHEDULE || "0 0 */2 * * *";
-  const timezone = process.env.TIMEZONE || "Europe/Amsterdam";
+  const timezone = process.env.TZ || "Europe/Amsterdam";
 
   console.log(`Cron schedule: ${schedule}`);
 

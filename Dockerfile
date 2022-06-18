@@ -1,6 +1,4 @@
-FROM mhart/alpine-node:latest
-
-MAINTAINER Kevin Richter<me@kevinrichter.nl>
+FROM node:18-alpine
 
 WORKDIR /app
 

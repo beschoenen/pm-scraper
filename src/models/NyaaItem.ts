@@ -1,8 +1,6 @@
 export default interface NyaaItem {
-  fileSize: string;
-  timestamp: string;
+  filesize: string;
+  date: string;
   name: string;
-  links: {
-    file: string,
-  };
+  torrent: string;
 }

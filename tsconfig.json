@@ -11,8 +11,6 @@
   "files": [
     "./types/transmission.d.ts",
     "./types/nyaapi.d.ts",
-    "./types/nodejs.d.ts",
-    "./node_modules/dotenv-expand/index.d.ts"
   ],
   "include": [
     "tsconfig.json",

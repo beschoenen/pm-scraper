@@ -21,21 +21,27 @@ export default class Transmission {
 
   public addTorrent(url: string): Promise<number> {
     return new Promise((resolve, reject) => {
-      client.addUrl(url, { "download-dir": process.env.DOWNLOAD_FOLDER }, (error: any, data: any) => {
-        if (error) { return reject(error); }
-
-        resolve(data.id);
-      });
+      // client.addUrl(url, { "download-dir": process.env.DOWNLOAD_FOLDER }, (error: any, data: any) => {
+      //   if (error) {
+      //     return reject(error);
+      //   }
+      //
+      //   resolve(data.id);
+      // });
+      resolve(1);
     });
   }
 
   public renameTorrent(id: number, oldName: string, newName: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      client.rename(id, oldName, newName, (error: any, data: any) => {
-        if (error) { return reject(error); }
-
-        resolve(data);
-      });
+      // client.rename(id, oldName, newName, (error: any, data: any) => {
+      //   if (error) {
+      //     return reject(error);
+      //   }
+      //
+      //   resolve(data);
+      // });
+      resolve(1);
     });
   }
 

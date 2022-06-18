@@ -5,17 +5,17 @@ import { isValidItem, newName } from "./parser";
 import { writeTimestamp } from "./timestamp";
 import Transmission from "./transmission";
 
-export default async function(): Promise<any> {
+export default async function (): Promise<any> {
   console.log("Starting search");
 
   try {
-    const data = await si.search({ term: "Pocket Monsters", n: 5, category: "1_2" });
+    const data = await si.search({term: "Pocket Monsters", n: 5, category: "1_2"});
 
     console.log(`Found ${data.length} items`);
 
     const items = filterItems(data);
 
-    console.log(`${items.length} of which are valid`);
+    console.log(`${items.length} of which were valid`);
 
     await addToTransmission(items);
 
@@ -29,7 +29,7 @@ function filterItems(items: NyaaItem[]): LocalItem[] {
   const validItems = items.filter(isValidItem);
 
   const newObjects: LocalItem[] = validItems.map((item) => ({
-    url: item.links.file,
+    url: item.torrent,
     newName: newName(item),
     oldName: item.name,
   }));

@@ -1,14 +1,18 @@
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, statSync, rmdirSync } from "fs";
 
-const glob = global as Glob;
+const glob = global as any;
 
 export function writeTimestamp(date?: number): void {
   date = date || getTimestamp();
 
-  if (process.argv.indexOf("--in-memory") < 0) {
-    writeFileSync(getTimestampPath(), date);
-  } else {
+  if (process.argv.includes("--in-memory")) {
     glob.timestamp = date;
+  } else {
+    if (statSync(getTimestampPath()).isDirectory()) {
+      rmdirSync(getTimestampPath());
+    }
+
+    writeFileSync(getTimestampPath(), String(date));
   }
 }
 
