@@ -1,43 +1,40 @@
 import { readFileSync, writeFileSync, statSync, rmdirSync } from "fs";
 
 const glob = global as any;
+const timestampPath = process.env.TIMESTAMP_PATH || `${__dirname}/../timestamp`;
 
 export function writeTimestamp(date?: number): void {
-  date = date || getTimestamp();
+  date = date || getCurrentTimestamp();
 
   if (process.argv.includes("--in-memory")) {
     glob.timestamp = date;
   } else {
-    if (statSync(getTimestampPath()).isFile()) {
-      rmdirSync(getTimestampPath());
+    if (statSync(timestampPath).isDirectory()) {
+      rmdirSync(timestampPath);
     }
 
-    writeFileSync(getTimestampPath(), String(date));
+    writeFileSync(timestampPath, String(date));
   }
 }
 
 export function readTimestamp(): number {
   if (process.argv.includes("--in-memory")) {
-    return glob.timestamp || getTimestamp();
+    return glob.timestamp || getCurrentTimestamp();
   } else {
     return getFileTimestamp();
   }
 }
 
 function getFileTimestamp(): number {
-  if (!statSync(getTimestampPath()).isFile()) {
-    return getTimestamp();
+  if (!statSync(timestampPath).isFile()) {
+    return getCurrentTimestamp();
   }
 
-  const content = readFileSync(getTimestampPath(), "utf8");
+  const content = readFileSync(timestampPath, "utf8");
 
   return parseInt(content, 10);
 }
 
-function getTimestampPath(): string {
-  return `${__dirname}/../timestamp`;
-}
-
-function getTimestamp(): number {
+function getCurrentTimestamp(): number {
   return Math.round((new Date()).getTime() / 1000);
 }
