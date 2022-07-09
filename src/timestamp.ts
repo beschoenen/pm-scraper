@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, statSync, rmdirSync } from "fs";
+import { readFileSync, writeFileSync, existsSync } from "fs";
 
 const glob = global as any;
 const timestampPath = process.env.TIMESTAMP_PATH || `${__dirname}/../timestamp`;
@@ -9,10 +9,6 @@ export function writeTimestamp(date?: number): void {
   if (process.argv.includes("--in-memory")) {
     glob.timestamp = date;
   } else {
-    if (statSync(timestampPath).isDirectory()) {
-      rmdirSync(timestampPath);
-    }
-
     writeFileSync(timestampPath, String(date));
   }
 }
@@ -26,7 +22,7 @@ export function readTimestamp(): number {
 }
 
 function getFileTimestamp(): number {
-  if (!statSync(timestampPath).isFile()) {
+  if (!existsSync(timestampPath)) {
     return getCurrentTimestamp();
   }
 
